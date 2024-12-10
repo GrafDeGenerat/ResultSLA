@@ -2,7 +2,6 @@ import sys
 from typing import Annotated
 from auth import create_token, check_auth, identificate_user
 from config import settings
-from db import database
 from fastapi import FastAPI, status, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from loguru import logger
@@ -15,11 +14,10 @@ app = FastAPI()
 
 logger.remove()
 logger.add(sys.stderr, level=settings.LOG_LEVEL)
-database.create()
 
 
 @app.post("/")
-async def main(request_json: Annotated[dict, Depends(check_auth)]) -> JSONResponse:
+async def main(request_json=Depends(check_auth)) -> JSONResponse:
     try:
         request = RequestModel(**request_json)
     except ValidationError as e:
