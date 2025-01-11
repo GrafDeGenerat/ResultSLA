@@ -2,20 +2,19 @@ from pydantic import Extra
 from pydantic_settings import BaseSettings
 
 
-class Settings(BaseSettings, extra=Extra.allow):
-    LOG_LEVEL: str
-    SECRET_KEY: str
-    ALGORITHM: str
+class Config(BaseSettings, extra=Extra.ignore):
+    class Config:
+        env_file = "./.env"
+        env_file_encoding = "utf-8"
+
+
+class DBSettings(Config):
     DB_TYPE: str = 'postgresql+asyncpg'
     DB_ADDRESS: str = '127.0.0.1'
     DB_PORT: str = '5432'
     DB_NAME: str
     DB_USER: str = 'postgres'
     DB_PASS: str = ''
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
 
     @property
     def DB_URL(self):
@@ -24,6 +23,3 @@ class Settings(BaseSettings, extra=Extra.allow):
               f"@{self.DB_ADDRESS}:{self.DB_PORT}/"\
               f"{self.DB_NAME}"
         return url
-
-
-settings = Settings()

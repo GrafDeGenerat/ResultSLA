@@ -1,19 +1,29 @@
-import json
-import jwt
-from loguru import logger
-from config import settings
+from asyncpg.exceptions import InvalidAuthorizationSpecificationError, InvalidCatalogNameError
 from datetime import datetime, timedelta
-from db.database import check_username, check_user_id
 from fastapi import Header, HTTPException, Depends, status
 from fastapi.requests import Request
 from fastapi.security import HTTPBasic
+import json
+import jwt
+from loguru import logger
 from typing import Annotated, Optional
 
+from db.exceptions import DatabaseConnectionException, DatabaseAuthException, NoDatabaseException
+from src.config import Settings
+from src.db.utils import check_username, check_user_id
+
 security = HTTPBasic()
+settings = Settings.get_settings()
 
 
 async def identificate_user(credentials=Depends(security)) -> dict:
-    user = await check_username(credentials)
+    try:
+        user = await check_username(credentials)
+    except InvalidAuthorizationSpecificationError:
+        raise DatabaseAuthException('Authentication to DB failed')
+    except InvalidCatalogNameError:
+        raise NoDatabaseException('Wrong DB name or no DB created')
+
     if not user or user.password != credentials.password:
         raise HTTPException(status_code=401, detail="Incorrect username or password")
 
@@ -26,9 +36,9 @@ def create_token(user: dict) -> str:
     expired = datetime.now() + timedelta(days=1)
     payload = {"sub": user,
                "exp": expired}
-    token = jwt.encode(algorithm=settings.ALGORITHM,
+    token = jwt.encode(algorithm=settings.app.ALGORITHM,
                        payload=payload,
-                       key=settings.SECRET_KEY,
+                       key=settings.app.SECRET_KEY,
                        )
     logger.debug(f"Creating token complete")
     return token
@@ -37,8 +47,8 @@ def create_token(user: dict) -> str:
 def check_token(token: str) -> dict:
     try:
         decoded = jwt.decode(jwt=token,
-                             key=settings.SECRET_KEY,
-                             algorithms=[settings.ALGORITHM])
+                             key=settings.app.SECRET_KEY,
+                             algorithms=[settings.app.ALGORITHM])
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail="Token expired. Try to get it at 'get_token' uri")
@@ -56,7 +66,10 @@ async def check_auth(request: Request,
 
     in_token = check_token(token)
     user_from_token = in_token.get("sub")
-    user = await check_user_id(user_from_token.get("id"))
+    try:
+        user = await check_user_id(user_from_token.get("id"))
+    except ConnectionRefusedError as e:
+        raise DatabaseConnectionException('No database connection could be established.')
 
     if not user.username:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,

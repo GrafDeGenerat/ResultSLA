@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
-from schemas import RequestModel, ResponseModel
-from utils import next_day, make_time, make_float
+from mainapp.schemas import RequestModel, ResponseModel
+from src.mainapp.utils import next_day, make_time, make_float
 
 
 def calculate_deadline(request: RequestModel) -> ResponseModel:
