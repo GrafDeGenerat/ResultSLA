@@ -4,11 +4,13 @@ from pydantic_settings import BaseSettings
 
 from src.db.config import DBSettings
 from src.mainapp.config import APPSettings
+from src.docker_app.config import DockerSettings
 
 
 class Settings(BaseSettings):
     db: DBSettings = Field(default_factory=DBSettings)
     app: APPSettings = Field(default_factory=APPSettings)
+    docker: DockerSettings = Field(default_factory=DockerSettings)
 
     @classmethod
     @lru_cache

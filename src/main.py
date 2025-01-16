@@ -9,7 +9,7 @@ from src.docker_app.utils import run_docker
 
 settings = Settings.get_settings()
 
-run_docker()
+run_docker(settings.docker.DOCKER_PATH)
 
 app = FastAPI()
 app.include_router(auth_router)

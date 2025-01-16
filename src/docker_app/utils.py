@@ -1,7 +1,7 @@
-import os
 import docker
 import docker.errors
-
+from src.config import Settings
+from loguru import logger
 
 class DockerInit:
     def __new__(cls):
@@ -37,12 +37,18 @@ class DockerInit:
             pass
         self.container = cname
 
-    def run(self):
-        path = os.getcwd() + '\\src\\docker_app\\'
+    def run(self, dockerfile_path: str) -> None:
+        path = dockerfile_path
         self._build_image(path, 'db_test_image')
         self._create_container(cname='db_test')
 
 
-def run_docker():
-    d = DockerInit()
-    d.run()
+def run_docker(path: str) -> None:
+    s = Settings.get_settings()
+    if s.docker.DOCKER_MODE:
+        logger.debug('Docker mode enabled. Starting...')
+        d = DockerInit()
+        d.run(path)
+        logger.debug('Docker container is running now')
+    else:
+        logger.debug('Docker mode disabled.')
