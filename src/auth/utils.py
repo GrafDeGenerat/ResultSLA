@@ -8,7 +8,7 @@ import jwt
 from loguru import logger
 from typing import Annotated, Optional
 
-from db.exceptions import DatabaseConnectionException, DatabaseAuthException, NoDatabaseException
+from src.db.exceptions import DatabaseConnectionException, DatabaseAuthException, NoDatabaseException
 from src.config import Settings
 from src.db.utils import check_username, check_user_id
 

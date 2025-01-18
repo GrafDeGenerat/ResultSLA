@@ -1,9 +1,10 @@
-from src.config import Settings
-from src.db.models import Users
-from src.db.core import create_engine, create_async_session
 from fastapi import HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy import select, and_, Row
+
+from src.config import Settings
+from src.db.models import Users
+from src.db.core import create_engine, create_async_session
 
 s = Settings.get_settings()
 engine = create_engine(url=s.db.DB_URL)

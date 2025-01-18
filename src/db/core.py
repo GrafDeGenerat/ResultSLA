@@ -6,8 +6,6 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy import URL
 
-from db.exceptions import DBException, DatabaseConnectionException
-
 
 def create_engine(url: URL) -> AsyncEngine:
     engine = create_async_engine(url)

@@ -12,4 +12,5 @@ class Config(BaseSettings, extra=Extra.ignore):
 class DockerSettings(Config):
     DOCKER_MODE: bool = True
     DOCKER_PATH: str = os.getcwd() + '\\src\\docker_app\\'
+    DOCKER_PORT: str = '5432'
 

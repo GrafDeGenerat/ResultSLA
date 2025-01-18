@@ -1,7 +1,9 @@
 import docker
 import docker.errors
-from src.config import Settings
 from loguru import logger
+
+from src.config import Settings
+
 
 class DockerInit:
     def __new__(cls):
@@ -21,34 +23,39 @@ class DockerInit:
                                  tag=image_tag,
                                  rm=True
                                  )
-        self.image = image_tag
+        self.image: str = image_tag
 
     def _create_container(self, cname: str,
-                          cmd: str | list = ['-dA' '-rm']
+                          ports: dict[str: int],
+                          cmd: str | list = ['-dA' '-rm'],
                           ) -> None:
         try:
             self.docker.containers.run(image=self.image,
                                        name=cname,
                                        command=cmd,
+                                       ports=ports,
                                        remove=True,
                                        detach=True,
                                        )
         except docker.errors.APIError:
             pass
-        self.container = cname
+        self.container: str = cname
 
-    def run(self, dockerfile_path: str) -> None:
-        path = dockerfile_path
+    def run(self, dockerfile_path: str, ports: dict[str: int]) -> None:
+        path: str = dockerfile_path
         self._build_image(path, 'db_test_image')
-        self._create_container(cname='db_test')
+        self._create_container(cname='db_test', ports=ports)
 
 
-def run_docker(path: str) -> None:
-    s = Settings.get_settings()
+def run_docker(path: str, port: str) -> None:
+    s: Settings = Settings.get_settings()
     if s.docker.DOCKER_MODE:
         logger.debug('Docker mode enabled. Starting...')
-        d = DockerInit()
-        d.run(path)
+        result_port: dict = {5432: port + '/tcp'}
+        d: DockerInit = DockerInit()
+        d.run(dockerfile_path=path,
+              ports=result_port
+              )
         logger.debug('Docker container is running now')
     else:
         logger.debug('Docker mode disabled.')
