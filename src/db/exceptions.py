@@ -12,5 +12,3 @@ class DatabaseAuthException(DBException):
 
 class DatabaseConnectionException(DBException):
     pass
-
-

@@ -1,10 +1,11 @@
 from functools import lru_cache
+
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
 from src.db.config import DBSettings
-from src.mainapp.config import APPSettings
 from src.docker_app.config import DockerSettings
+from src.mainapp.config import APPSettings
 
 
 class Settings(BaseSettings):
