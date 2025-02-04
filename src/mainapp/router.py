@@ -3,9 +3,9 @@ from fastapi.responses import JSONResponse
 from loguru import logger
 from pydantic import ValidationError
 
-from mainapp.schemas import RequestModel
-from mainapp.service import calculate_deadline
 from src.auth.utils import check_auth
+from src.mainapp.schemas import RequestModel
+from src.mainapp.service import calculate_deadline
 
 router = APIRouter()
 
