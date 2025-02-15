@@ -1,7 +1,7 @@
 <h3>Project for calculating SLA time. Minimalistic version</h3> <br>
 <b>Requirements</b>: <br>
-&nbsp; 1) .env file in root dir
-&nbsp; 2) Requirements from requirements.txt
+&nbsp; 1) .env file in root dir <br>
+&nbsp; 2) Requirements from requirements.txt <br>
 
 <b>Input data</b>: json format like <br> 
 <code>
