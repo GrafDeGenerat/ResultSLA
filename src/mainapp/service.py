@@ -1,12 +1,13 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from src.mainapp.schemas import RequestModel, ResponseModel
 from src.mainapp.utils import (
-    estimate_sla,
     is_rest_day,
-    make_time,
-    make_time_list,
     next_day,
+)
+from src.timeapp.service import (
+    SuperTime,
+    TimesCollection,
 )
 
 
@@ -17,54 +18,28 @@ def calculate_deadline(request: RequestModel) -> ResponseModel:
     param request: RequestModel \n
     return ResponseModel
     """
-    current_work_from = request.date.hour + (request.date.minute / 60)
+    if is_rest_day(request.date):
+        result_date = next_day(request.date)
+        first_work_from = SuperTime(0)
+    else:
+        result_date = request.date
+        first_work_from = SuperTime(request.date.time())
 
-    def inner(
-        dt: datetime = request.date,
-        work_from: int | float = current_work_from,
-        work_to: int | float = request.operating_mode_to,
-        sla: int | float = request.sla_time,
-    ) -> dict:
-        """
-        Inner function. First call with defaults args for correct calculate \n
-        param dt: datetime \n
-        param work_from: float | int \n
-        param work_to: float | int \n
-        param sla: float | int \n
-        return datetime
-        """
-        if is_rest_day(dt):
-            dt = next_day(dt).replace(hour=0, minute=0)
-        from_time = dt.hour + dt.minute / 60
-        # Add list with working periods of current day
-        today_mode = make_time_list(
-            request.operating_mode_from,
-            work_to,
-            from_time,
-        )
-        # sum all periods of the day
-        working_hours = sum(
-            24 - (a + b) if a >= b else b - a for a, b in today_mode if today_mode
-        )
+    work_from = SuperTime(request.operating_mode_from)
+    work_to = SuperTime(request.operating_mode_to)
+    sla = SuperTime(request.sla_time / 60)
+    daily_period = TimesCollection(work_from, work_to).intersect(first_work_from)
 
-        if sla > working_hours:
-            if today_mode:
-                for mode in today_mode:
-                    fr, to = mode
-                    sla -= 24 - (fr + to) if fr >= to else to - fr
-            new_dt = next_day(dt.replace(hour=0, minute=0))
-            res = inner(
-                dt=new_dt, work_from=request.operating_mode_from, work_to=work_to, sla=sla
-            )
+    while sla > 0:
+        day_length = len(daily_period)
 
-            return res
+        if sla > day_length:
+            result_date = next_day(result_date)
 
-        est_sla, end_time = estimate_sla(today_mode, sla)
-        sla_time = make_time(sla)
-        fr_time = make_time(end_time)
-        dt = dt.replace(hour=fr_time.hour, minute=fr_time.minute)
-        res = dt + timedelta(hours=sla_time.hour, minutes=sla_time.minute)
+        sla, result_time = daily_period - sla
+        work_from = SuperTime(request.operating_mode_from)
+        daily_period = TimesCollection(work_from, work_to)
 
-        return {"deadline": res}
-
-    return ResponseModel(**inner())
+    result_date = result_date.replace(hour=0, minute=0, second=0)
+    result_date += timedelta(seconds=result_time.total_seconds)
+    return ResponseModel(**{"deadline": result_date})

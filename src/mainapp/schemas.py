@@ -6,8 +6,8 @@ from pydantic import BaseModel, Field, PositiveFloat, model_validator
 
 class RequestModel(BaseModel):
     date: datetime = Field(default=datetime.now())
-    operating_mode_from: int | float = Field(ge=0.0, lt=24.0)
-    operating_mode_to: int | float = Field(ge=0.0, lt=24.0)
+    operating_mode_from: int | float = Field(ge=0.0, le=24.0)
+    operating_mode_to: int | float = Field(ge=0.0, le=24.0)
     sla_time: PositiveFloat
 
     @model_validator(mode="before")
@@ -19,8 +19,3 @@ class RequestModel(BaseModel):
 
 class ResponseModel(BaseModel):
     deadline: datetime
-
-
-class UserModel(BaseModel):
-    username: str
-    password: str
