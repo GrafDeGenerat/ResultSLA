@@ -19,7 +19,7 @@ class SuperTime:
             return obj.hour * 3600 + obj.minute * 60 + obj.second
 
         elif isinstance(obj, float):
-            obj = timedelta(hours=obj).total_seconds()
+            obj = timedelta(minutes=obj).total_seconds()
             return int(obj)
 
         elif isinstance(obj, timedelta):
@@ -32,7 +32,7 @@ class SuperTime:
             return obj.total_seconds
 
         else:
-            raise TypeError
+            raise TypeError(f"Wrong time type: {type(obj)}")
 
     @staticmethod
     def __check_type(self_class, obj):
@@ -79,6 +79,11 @@ class SuperTime:
         cur: int = self.total_seconds
         oth: int = self.__check_type(self, other)
         return cur <= oth
+
+    def __ge__(self, other):
+        cur: int = self.total_seconds
+        oth: int = self.__check_type(self, other)
+        return cur >= oth
 
     def __eq__(self, other):
         cur: int = self.total_seconds

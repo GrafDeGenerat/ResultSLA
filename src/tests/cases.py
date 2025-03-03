@@ -55,12 +55,12 @@ cases_mainapp = [
     ],
     [
         {
-            "date": "2025-01-27 17:00",
+            "date": "2025-01-27 15:00",
             "operating_mode_from": 9,
             "operating_mode_to": 18,
             "sla_time": 180,
         },
-        {"deadline": "2025-01-28 11:00:00"},
+        {"deadline": "2025-01-28 09:00:00"},
     ],
     [
         {
@@ -142,6 +142,15 @@ cases_mainapp = [
             "sla_time": 720,
         },
         {"deadline": "2025-01-27 21:00:00"},
+    ],
+    [
+        {
+            "date": "2025-01-27 06:00",
+            "operating_mode_from": 9,
+            "operating_mode_to": 9,
+            "sla_time": 180,
+        },
+        {"deadline": "2025-01-27 09:00:00"},
     ],
     [
         {
@@ -231,7 +240,7 @@ cases_mainapp = [
             "operating_mode_to": 11,
             "sla_time": 180,
         },
-        {"deadline": "2025-01-27 11:00:00"},
+        {"deadline": "2025-01-27 23:00:00"},
     ],
     [
         {

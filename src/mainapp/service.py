@@ -27,19 +27,29 @@ def calculate_deadline(request: RequestModel) -> ResponseModel:
 
     work_from = SuperTime(request.operating_mode_from)
     work_to = SuperTime(request.operating_mode_to)
-    sla = SuperTime(request.sla_time / 60)
+    sla = SuperTime(request.sla_time)
     daily_period = TimesCollection(work_from, work_to).intersect(first_work_from)
+    result_time = SuperTime(result_date.time())
 
     while sla > 0:
+        if sla == 0 and result_time == work_to:
+            result_time = SuperTime(work_from)
+            break
+
         day_length = len(daily_period)
 
         if sla > day_length:
             result_date = next_day(result_date)
 
         sla, result_time = daily_period - sla
-        work_from = SuperTime(request.operating_mode_from)
         daily_period = TimesCollection(work_from, work_to)
 
     result_date = result_date.replace(hour=0, minute=0, second=0)
+
+    if result_time == work_to:
+        if work_from < work_to:
+            result_date = next_day(result_date)
+        result_time = SuperTime(work_from)
+
     result_date += timedelta(seconds=result_time.total_seconds)
     return ResponseModel(**{"deadline": result_date})
