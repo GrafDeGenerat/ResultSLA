@@ -1,8 +1,7 @@
-<h3>Project for calculating SLA time</h3> <br>
+<h3>Project for calculating SLA time. Minimalistic version</h3> <br>
 <b>Requirements</b>: <br>
-&nbsp; 1) BD - postgres, for auth users. <br>
-&nbsp; 2  Demo DB - ENV setting DOCKER_MODE for enabling, default True. <b>Installed and running Docker required!</b><br>
-&nbsp; 3) .env file in root dir (example - .env_demo)
+&nbsp; 1) .env file in root dir <br>
+&nbsp; 2) Requirements from requirements.txt <br>
 
 <b>Input data</b>: json format like <br> 
 <code>
